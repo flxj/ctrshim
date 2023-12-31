@@ -1,4 +1,4 @@
-`ctrshim` is a container runtime shim program that works in conjunction with the OCI runtime tool to create and monitor containers
+😁 `ctrshim` is a container runtime shim program that works in conjunction with the OCI runtime tool to create and monitor containers.
 
 ### Compile
 

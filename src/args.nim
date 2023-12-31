@@ -273,9 +273,7 @@ proc validOptions(ops:Options)=
     if ops.optContainerPidFile == "":
         ops.optContainerPidFile = fmt"{wkDir}/pidfile-{ops.optContainerId}"
     
-    # opt_bundle_path in exec means we will set up the attach socket
-    # for the exec session. the legacy version of exec does not need this
-    # and thus we only override an empty opt_bundle_path when we're not exec
+    #
     if ops.optBundle == "" and (not ops.runtimeExec):
         ops.optBundle = wkDir
     #

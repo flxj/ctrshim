@@ -119,7 +119,7 @@ proc main(arg:string) =
             #    nwarn("Failed to set mainfd_stdin to non blocking");
         (stdoutPipe_r,stdoutPipe) = createPipe()
         logger.log(lvlDebug,"Create stdout pipes")
-    # 无论是否需要终端，我们都需要创建stderr的pipe, 以便能够记录容器的错误信息
+    # 
     var (stderrPipe_r,stderrPipe) = createPipe()
     logger.log(lvlDebug,"Create stderr pipes")
 
@@ -133,7 +133,7 @@ proc main(arg:string) =
             (attachSocketFd,attachSocketPath) = createAttachSocket(ops)
             remoteSock.fd = attachSocketFd
             logger.log(lvlDebug,fmt"Create attach socket at {attachSocketPath}")
-            # attach操作肯定是需要终端参与的，因此需要此处准备一个用于控制终端的socket,这个主要用于同步客户端和容器端的终端大小变化
+            # 
             (terminalControlR,terminalControlR) = createTerminalControlFifo(ops.optBundle)
             (winSizeR,winSizeW) = createWinSizeFifo(ops.optBundle)
             logger.log(lvlDebug,"Create terminal control socket")
@@ -235,7 +235,6 @@ proc main(arg:string) =
             block mainloop:
                 while true:
                     let keys = select(slt,-1)
-                    # TODO sigchld-->on_signalfd_cb |.
                     for i,k in keys[0..^1]:
                         if k.errorCode != OSErrorCode(0):
                             continue
@@ -337,19 +336,10 @@ proc main(arg:string) =
     
     # TODO: timeout
 
-    #let sigChldFd = registerSignal(slt,SIGCHLD,-1)
-    #signal(SIGKILL,sigHandler)
-
     let sigCtrFd = registerProcess(slt,containerPid,-5) 
     registerHandle(slt,stdoutPipe_r,{Read},-6)
     registerHandle(slt,stderrPipe_r,{Read},-7)
 
-    #[
-        if (opt_api_version < 1 || !opt_exec || !opt_terminal || container_status < 0) {
-        g_idle_add(check_child_processes_cb, &data);
-        g_main_loop_run(main_loop);
-    }
-    ]#
     if (not ops.runtimeExec) or (not ops.optTerminal) or (containerStatus < 0):
         var
             sigCtrExit:bool
